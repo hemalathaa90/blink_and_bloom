@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaze Detection Test - Blink & Bloom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .camera-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .camera-container {
+            position: relative;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+        }
+        
+        #camera-feed {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        #detection-canvas {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            pointer-events: none;
+            border-radius: 8px;
+        }
+        
+        .gaze-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            flex: 1;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .gaze-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .grid-cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .grid-cell.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #00ff00;
+            transform: scale(1.05);
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .accuracy-test {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .test-target {
+            width: 30px;
+            height: 30px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .test-target:hover {
+            transform: scale(1.2);
+        }
+        
+        .test-area {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .status {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .error {
+            background: rgba(255, 0, 0, 0.3);
+        }
+        
+        .success {
+            background: rgba(0, 255, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Gaze Detection Accuracy Test</h1>
+        
+        <div class="camera-section">
+            <div class="camera-container">
+                <video id="camera-feed" autoplay muted></video>
+                <canvas id="detection-canvas"></canvas>
+            </div>
+            
+            <div class="gaze-info">
+                <h3>📊 Gaze Information</h3>
+                <div class="info-row">
+                    <span>Gaze X:</span>
+                    <span id="gaze-x">0.000</span>
+                </div>
+                <div class="info-row">
+                    <span>Gaze Y:</span>
+                    <span id="gaze-y">0.000</span>
+                </div>
+                <div class="info-row">
+                    <span>Direction:</span>
+                    <span id="gaze-direction">center</span>
+                </div>
+                <div class="info-row">
+                    <span>Confidence:</span>
+                    <span id="gaze-confidence">0%</span>
+                </div>
+                
+                <h4>🎯 Gaze Grid</h4>
+                <div class="gaze-grid">
+                    <div class="grid-cell" data-region="up-left">↖</div>
+                    <div class="grid-cell" data-region="up">↑</div>
+                    <div class="grid-cell" data-region="up-right">↗</div>
+                    <div class="grid-cell" data-region="left">←</div>
+                    <div class="grid-cell" data-region="center">●</div>
+                    <div class="grid-cell" data-region="right">→</div>
+                    <div class="grid-cell" data-region="down-left">↙</div>
+                    <div class="grid-cell" data-region="down">↓</div>
+                    <div class="grid-cell" data-region="down-right">↘</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="start-btn">Start Gaze Detection</button>
+            <button id="stop-btn" disabled>Stop Detection</button>
+            <button id="calibrate-btn" disabled>Start Calibration</button>
+            <button id="test-accuracy-btn" disabled>Test Accuracy</button>
+        </div>
+        
+        <div id="calibration-status" class="status" style="display: none;">
+            Look at the center of the screen and keep your head still.<br>
+            Calibration samples: <span id="calibration-samples">0</span> / 30
+        </div>
+        
+        <div id="status" class="status">
+            Ready to start gaze detection. Click "Start Gaze Detection" to begin.
+        </div>
+        
+        <div class="accuracy-test">
+            <h3>🎯 Accuracy Test</h3>
+            <p>Look at the red circles as they appear and click them to test gaze accuracy.</p>
+            <div class="test-area" id="test-area">
+                <!-- Test targets will appear here -->
+            </div>
+            <div class="info-row">
+                <span>Test Score:</span>
+                <span id="test-score">0 / 0</span>
+            </div>
+            <div class="info-row">
+                <span>Accuracy:</span>
+                <span id="test-accuracy">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/gazeDetector.js"></script>
+    <script>
+        class GazeTest {
+            constructor() {
+                this.gazeDetector = new GazeDetector();
+                this.isRunning = false;
+                this.testActive = false;
+                this.testTargets = [];
+                this.testScore = 0;
+                this.testTotal = 0;
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.setupCallbacks();
+            }
+            
+            initializeElements() {
+                this.elements = {
+                    startBtn: document.getElementById('start-btn'),
+                    stopBtn: document.getElementById('stop-btn'),
+                    calibrateBtn: document.getElementById('calibrate-btn'),
+                    testAccuracyBtn: document.getElementById('test-accuracy-btn'),
+                    status: document.getElementById('status'),
+                    gazeX: document.getElementById('gaze-x'),
+                    gazeY: document.getElementById('gaze-y'),
+                    gazeDirection: document.getElementById('gaze-direction'),
+                    gazeConfidence: document.getElementById('gaze-confidence'),
+                    testScore: document.getElementById('test-score'),
+                    testAccuracy: document.getElementById('test-accuracy'),
+                    testArea: document.getElementById('test-area'),
+                    gridCells: document.querySelectorAll('.grid-cell'),
+                    calibrationStatus: document.getElementById('calibration-status'),
+                    calibrationSamples: document.getElementById('calibration-samples')
+                };
+            }
+            
+            setupEventListeners() {
+                this.elements.startBtn.addEventListener('click', () => this.startDetection());
+                this.elements.stopBtn.addEventListener('click', () => this.stopDetection());
+                this.elements.calibrateBtn.addEventListener('click', () => this.toggleCalibration());
+                this.elements.testAccuracyBtn.addEventListener('click', () => this.startAccuracyTest());
+            }
+            
+            setupCallbacks() {
+                this.gazeDetector.onGazeDetected = (gaze, details) => {
+                    this.updateGazeDisplay(gaze, details);
+                };
+                
+                this.gazeDetector.onError = (error) => {
+                    this.showStatus(error, 'error');
+                };
+            }
+            
+            async startDetection() {
+                this.showStatus('Initializing gaze detection...', '');
+                
+                try {
+                    // Initialize gaze detector
+                    const initialized = await this.gazeDetector.initialize();
+                    if (!initialized) {
+                        throw new Error('Failed to initialize gaze detector');
+                    }
+                    
+                    // Setup camera
+                    const video = document.getElementById('camera-feed');
+                    const canvas = document.getElementById('detection-canvas');
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 640, height: 480 }
+                    });
+                    
+                    video.srcObject = stream;
+                    await new Promise(resolve => video.onloadedmetadata = resolve);
+                    
+                    // Setup gaze detector with video and canvas
+                    this.gazeDetector.setupCamera(video, canvas);
+                    
+                    // Start detection
+                    this.gazeDetector.startDetection();
+                    this.isRunning = true;
+                    
+                    this.updateButtons();
+                    this.showStatus('Gaze detection active. Look around to test!', 'success');
+                    
+                } catch (error) {
+                    console.error('Error starting detection:', error);
+                    this.showStatus(`Error: ${error.message}`, 'error');
+                }
+            }
+            
+            stopDetection() {
+                this.gazeDetector.stopDetection();
+                this.isRunning = false;
+                this.stopAccuracyTest();
+                this.updateButtons();
+                this.showStatus('Gaze detection stopped.', '');
+            }
+            
+            toggleCalibration() {
+                if (this.gazeDetector.calibrationData.isCalibrating) {
+                    // Stop calibration
+                    this.gazeDetector.stopCalibration();
+                    this.elements.calibrateBtn.textContent = 'Start Calibration';
+                    this.elements.calibrationStatus.style.display = 'none';
+                    this.showStatus('Calibration complete! Thresholds updated.', 'success');
+                } else {
+                    // Start calibration
+                    this.gazeDetector.startCalibration();
+                    this.elements.calibrateBtn.textContent = 'Stop Calibration';
+                    this.elements.calibrationStatus.style.display = 'block';
+                    this.showStatus('Calibration started. Look at the center and keep still.', '');
+                }
+            }
+            
+            updateGazeDisplay(gaze, details) {
+                // Update numeric values
+                this.elements.gazeX.textContent = gaze.x.toFixed(3);
+                this.elements.gazeY.textContent = gaze.y.toFixed(3);
+                this.elements.gazeDirection.textContent = this.gazeDetector.getGazeRegion();
+                this.elements.gazeConfidence.textContent = Math.round(details.confidence * 100) + '%';
+                
+                // Update calibration status
+                if (this.gazeDetector.calibrationData.isCalibrating) {
+                    this.elements.calibrationSamples.textContent = this.gazeDetector.calibrationData.samples.length;
+                }
+                
+                // Update grid visualization
+                this.updateGazeGrid(gaze);
+                
+                // Check accuracy test targets
+                if (this.testActive) {
+                    this.checkGazeAccuracy(gaze);
+                }
+                
+                // Show debug info in console occasionally
+                if (Math.random() < 0.1) { // 10% of the time
+                    console.log('🔍 Gaze Debug:', details.debugInfo);
+                }
+            }
+            
+            updateGazeGrid(gaze) {
+                // Clear all active states
+                this.elements.gridCells.forEach(cell => cell.classList.remove('active'));
+                
+                // Use the gaze detector's region calculation
+                const region = this.gazeDetector.getGazeRegion();
+                
+                // Map basic regions to grid regions
+                let activeRegion = region;
+                
+                // For now, use basic 5-region mapping (center, up, down, left, right)
+                // In the future, could add diagonal regions
+                
+                // Activate the appropriate cell
+                const activeCell = document.querySelector(`[data-region="${activeRegion}"]`);
+                if (activeCell) {
+                    activeCell.classList.add('active');
+                } else {
+                    // Fallback to center if region not found
+                    const centerCell = document.querySelector(`[data-region="center"]`);
+                    if (centerCell) {
+                        centerCell.classList.add('active');
+                    }
+                }
+            }
+            
+            startAccuracyTest() {
+                if (!this.isRunning) {
+                    this.showStatus('Start gaze detection first!', 'error');
+                    return;
+                }
+                
+                this.testActive = true;
+                this.testScore = 0;
+                this.testTotal = 0;
+                this.updateTestDisplay();
+                
+                this.showStatus('Accuracy test started! Look at the red targets as they appear.', 'success');
+                this.spawnTestTarget();
+            }
+            
+            stopAccuracyTest() {
+                this.testActive = false;
+                this.clearTestTargets();
+            }
+            
+            spawnTestTarget() {
+                if (!this.testActive) return;
+                
+                // Clear existing targets
+                this.clearTestTargets();
+                
+                // Create new target at random position
+                const target = document.createElement('div');
+                target.className = 'test-target';
+                target.textContent = this.testTotal + 1;
+                
+                const testArea = this.elements.testArea;
+                const maxX = testArea.clientWidth - 30;
+                const maxY = testArea.clientHeight - 30;
+                
+                const x = Math.random() * maxX;
+                const y = Math.random() * maxY;
+                
+                target.style.left = x + 'px';
+                target.style.top = y + 'px';
+                
+                // Store target info for accuracy checking
+                target.dataset.x = x;
+                target.dataset.y = y;
+                
+                target.addEventListener('click', () => {
+                    this.testScore++;
+                    this.testTotal++;
+                    this.updateTestDisplay();
+                    this.nextTarget();
+                });
+                
+                testArea.appendChild(target);
+                this.testTargets.push(target);
+                
+                // Auto-advance after 3 seconds
+                setTimeout(() => {
+                    if (this.testActive && target.parentNode) {
+                        this.testTotal++;
+                        this.updateTestDisplay();
+                        this.nextTarget();
+                    }
+                }, 3000);
+            }
+            
+            nextTarget() {
+                if (this.testActive && this.testTotal < 10) {
+                    setTimeout(() => this.spawnTestTarget(), 1000);
+                } else if (this.testTotal >= 10) {
+                    this.stopAccuracyTest();
+                    const accuracy = Math.round((this.testScore / this.testTotal) * 100);
+                    this.showStatus(`Test complete! Final accuracy: ${accuracy}%`, 
+                        accuracy > 70 ? 'success' : 'error');
+                }
+            }
+            
+            checkGazeAccuracy(gaze) {
+                // This is a simplified accuracy check
+                // In a real implementation, you'd map gaze coordinates to screen coordinates
+                // and check proximity to targets
+            }
+            
+            clearTestTargets() {
+                this.testTargets.forEach(target => target.remove());
+                this.testTargets = [];
+            }
+            
+            updateTestDisplay() {
+                this.elements.testScore.textContent = `${this.testScore} / ${this.testTotal}`;
+                const accuracy = this.testTotal > 0 ? Math.round((this.testScore / this.testTotal) * 100) : 0;
+                this.elements.testAccuracy.textContent = accuracy + '%';
+            }
+            
+            updateButtons() {
+                this.elements.startBtn.disabled = this.isRunning;
+                this.elements.stopBtn.disabled = !this.isRunning;
+                this.elements.calibrateBtn.disabled = !this.isRunning;
+                this.elements.testAccuracyBtn.disabled = !this.isRunning;
+            }
+            
+            showStatus(message, type) {
+                this.elements.status.textContent = message;
+                this.elements.status.className = `status ${type}`;
+            }
+        }
+        
+        // Initialize the test when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new GazeTest();
+        });
+    </script>
+</body>
+</html>

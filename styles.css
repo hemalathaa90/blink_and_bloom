@@ -1,0 +1,1913 @@
+/* Blink & Bloom - Pixel Art Garden Game Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    background: linear-gradient(180deg, #A8D5E2 0%, #F0EBD8 100%);
+    min-height: 100vh;
+    width: 100vw;
+    color: #7A5840;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+#game-container {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Screen Management */
+.screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.screen.hidden {
+    display: none;
+}
+
+/* Main Menu Styles */
+#main-menu {
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    background-image: url('./assets/backgrounds/main_menu_background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.menu-panel {
+    background: rgba(216, 197, 160, 0.95);
+    border: 4px solid #BCA37F;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 8px 8px 0px #8C6A89;
+    text-align: center;
+    max-width: 500px;
+    backdrop-filter: blur(2px);
+}
+
+.logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.game-logo {
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+}
+
+.menu-panel h1 {
+    font-size: 24px;
+    color: #6B8F71;
+    text-shadow: 2px 2px 0px #F0EBD8;
+    margin: 0;
+}
+
+.header-logo {
+    width: 24px;
+    height: 24px;
+    image-rendering: pixelated;
+    margin-right: 8px;
+}
+
+.subtitle {
+    font-size: 10px;
+    color: #7A5840;
+    margin-bottom: 24px;
+    opacity: 0.8;
+}
+
+.menu-description {
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    text-align: left;
+}
+
+.menu-description p {
+    margin: 4px 0;
+    font-size: 8px;
+    line-height: 1.4;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 24px 0;
+}
+
+.menu-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 12px 24px;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    background: #F0EBD8;
+    color: #7A5840;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 0px #8C6A89;
+}
+
+.menu-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #8C6A89;
+    background: #EAC8CA;
+}
+
+.menu-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #8C6A89;
+}
+
+.menu-btn.primary {
+    background: #6B8F71;
+    color: #F0EBD8;
+    border-color: #7A5840;
+}
+
+.menu-btn.primary:hover {
+    background: #7FBF7F;
+}
+
+.health-info {
+    background: rgba(166, 200, 226, 0.4);
+    border: 2px solid #6b8f71;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+    font-size: 7px;
+    line-height: 1.4;
+}
+
+.health-info p {
+    margin: 4px 0;
+}
+
+.health-info strong {
+    color: #6B8F71;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(rgba(122, 88, 64, 0.8), rgba(107, 143, 113, 0.8)),
+        url('./environment/dark_earth.png');
+    background-size: auto, 64px 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #D8C5A0;
+    border: 4px solid #BCA37F;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 8px 8px 0px #8C6A89;
+    text-align: center;
+    max-width: 500px;
+}
+
+.modal-content h2 {
+    font-size: 16px;
+    color: #6B8F71;
+    margin-bottom: 16px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+/* Symphony Results Modal */
+#symphony-final-stats {
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+.symphony-stat {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 10px;
+}
+
+.stat-label {
+    color: #7A5840;
+}
+
+.stat-value {
+    color: #6B8F71;
+    font-weight: bold;
+}
+
+.symphony-rating {
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px;
+    background: #EAC8CA;
+    border: 2px solid #A6C8E2;
+    border-radius: 6px;
+}
+
+#performance-rating {
+    font-size: 11px;
+    color: #6B8F71;
+    font-weight: bold;
+}
+
+/* Debug Panel Styles */
+#debug-panels {
+    position: fixed;
+    bottom: 16px;
+    left: 16px;
+    background: #D8C5A0;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 8px;
+    max-width: 350px;
+    z-index: 999;
+    box-shadow: 4px 4px 0px #8C6A89;
+    color: #7A5840;
+}
+
+#debug-panels.hidden {
+    display: none;
+}
+
+#debug-panels h4 {
+    color: #6B8F71;
+    margin-bottom: 12px;
+    font-size: 9px;
+}
+
+#debug-panels button {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 8px 12px;
+    margin: 4px 8px 4px 0;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    background: #F0EBD8;
+    color: #7A5840;
+    cursor: pointer;
+}
+
+#debug-panels button:hover {
+    background: #EAC8CA;
+}
+
+.close-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #8C6A89 !important;
+    color: #F0EBD8 !important;
+    padding: 4px 8px !important;
+    font-size: 8px !important;
+    border-radius: 4px !important;
+}
+
+.close-button:hover {
+    background: #7A5840 !important;
+}
+
+#camera-controls {
+    margin: 16px 0;
+    padding: 12px;
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 6px;
+}
+
+#camera-controls > div {
+    margin: 8px 0;
+}
+
+#camera-controls label {
+    display: inline-block;
+    margin-right: 12px;
+    font-size: 8px;
+    min-width: 80px;
+}
+
+#camera-select {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 4px 8px;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    background: #F0EBD8;
+    color: #7A5840;
+    margin-right: 8px;
+}
+
+#camera-status {
+    font-size: 7px;
+    color: #6B8F71;
+    margin-top: 8px;
+    padding: 4px 8px;
+    background: rgba(107, 143, 113, 0.1);
+    border-radius: 4px;
+}
+
+#camera-diagnostics {
+    font-size: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    font-family: monospace;
+}
+
+#gaze-info {
+    margin: 16px 0;
+    padding: 12px;
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 6px;
+}
+
+#gaze-debug {
+    font-size: 6px;
+    font-family: monospace;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+/* === WIND DIRECTION SYSTEM STYLES === */
+
+/* Wind Warning Overlay */
+.wind-warning {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 235, 200, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 60;
+    animation: windWarningPulse 1s ease-in-out infinite alternate;
+}
+
+.wind-warning-content {
+    text-align: center;
+    color: #7A5840;
+}
+
+.wind-direction-arrow {
+    font-size: 32px;
+    margin-bottom: 8px;
+    animation: arrowBounce 0.8s ease-in-out infinite alternate;
+}
+
+.wind-warning-text {
+    font-size: 10px;
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+.wind-instruction {
+    font-size: 8px;
+    opacity: 0.8;
+}
+
+@keyframes windWarningPulse {
+    0% { background: rgba(255, 235, 200, 0.7); }
+    100% { background: rgba(255, 235, 200, 0.9); }
+}
+
+@keyframes arrowBounce {
+    0% { transform: translateY(0px); }
+    100% { transform: translateY(-4px); }
+}
+
+/* Active Wind Effects */
+.wind-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 40;
+    background: linear-gradient(transparent 0%, rgba(200, 220, 240, 0.3) 50%, transparent 100%);
+}
+
+/* Directional Wind Styles */
+.wind-north {
+    background: linear-gradient(0deg, transparent 0%, rgba(166, 200, 226, 0.4) 30%, rgba(166, 200, 226, 0.1) 100%);
+    animation: windNorth 2s ease-in-out infinite;
+}
+
+.wind-south {
+    background: linear-gradient(180deg, transparent 0%, rgba(166, 200, 226, 0.4) 30%, rgba(166, 200, 226, 0.1) 100%);
+    animation: windSouth 2s ease-in-out infinite;
+}
+
+.wind-east {
+    background: linear-gradient(90deg, transparent 0%, rgba(166, 200, 226, 0.4) 30%, rgba(166, 200, 226, 0.1) 100%);
+    animation: windEast 2s ease-in-out infinite;
+}
+
+.wind-west {
+    background: linear-gradient(270deg, transparent 0%, rgba(166, 200, 226, 0.4) 30%, rgba(166, 200, 226, 0.1) 100%);
+    animation: windWest 2s ease-in-out infinite;
+}
+
+/* Wind animations */
+@keyframes windNorth {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes windSouth {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes windEast {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes windWest {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Alignment Feedback */
+.wind-effect.aligned {
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(127, 191, 127, 0.5) 30%, 
+        rgba(127, 191, 127, 0.2) 100%);
+    animation: alignedGlow 1s ease-in-out infinite alternate;
+}
+
+.wind-effect.misaligned {
+    background: linear-gradient(45deg, 
+        transparent 0%, 
+        rgba(191, 127, 127, 0.4) 30%, 
+        rgba(191, 127, 127, 0.1) 100%);
+}
+
+@keyframes alignedGlow {
+    0% { filter: brightness(1.0); }
+    100% { filter: brightness(1.3); }
+}
+
+/* Plant Swaying Effects */
+.plant-slot.sway-north .plant-sprite {
+    animation: swayNorth 1.5s ease-in-out infinite;
+}
+
+.plant-slot.sway-south .plant-sprite {
+    animation: swaySouth 1.5s ease-in-out infinite;
+}
+
+.plant-slot.sway-east .plant-sprite {
+    animation: swayEast 1.5s ease-in-out infinite;
+}
+
+.plant-slot.sway-west .plant-sprite {
+    animation: swayWest 1.5s ease-in-out infinite;
+}
+
+/* Swaying animations for plants */
+@keyframes swayNorth {
+    0%, 100% { transform: rotate(0deg) translateY(0px); }
+    50% { transform: rotate(-2deg) translateY(-1px); }
+}
+
+@keyframes swaySouth {
+    0%, 100% { transform: rotate(0deg) translateY(0px); }
+    50% { transform: rotate(2deg) translateY(1px); }
+}
+
+@keyframes swayEast {
+    0%, 100% { transform: rotate(0deg) translateX(0px); }
+    50% { transform: rotate(2deg) translateX(1px); }
+}
+
+@keyframes swayWest {
+    0%, 100% { transform: rotate(0deg) translateX(0px); }
+    50% { transform: rotate(-2deg) translateX(-1px); }
+}
+
+/* Wind Success Effect */
+.wind-success-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFD700;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    animation: successPop 2s ease-out forwards;
+    pointer-events: none;
+    z-index: 70;
+    text-shadow: 2px 2px 0px #7A5840;
+}
+
+@keyframes successPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    #main-game-area {
+        flex-direction: column;
+    }
+    
+    #game-sidebar {
+        width: 100%;
+        flex-direction: row;
+        gap: 8px;
+    }
+    
+    #controls-panel, #info-panel, #tips-panel {
+        flex: 1;
+    }
+    
+    #camera-container {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        width: 160px;
+        height: 120px;
+        margin: 16px auto 0;
+    }
+}
+
+/* Mini-Game Styles */
+.mini-game-panel {
+    background: #D8C5A0;
+    border: 4px solid #BCA37F;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 8px 8px 0px #8C6A89;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.mini-game-panel h2 {
+    font-size: 16px;
+    color: #6B8F71;
+    margin-bottom: 16px;
+}
+
+.mini-game-description {
+    font-size: 9px;
+    color: #7A5840;
+    margin-bottom: 24px;
+    line-height: 1.4;
+}
+
+#symphony-game-area {
+    background: #F0EBD8;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+}
+
+#rhythm-bar {
+    height: 40px;
+    background: #7A5840;
+    border: 2px solid #6B8F71;
+    border-radius: 4px;
+    position: relative;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+#beat-indicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    background: #FFD700;
+    border-radius: 50%;
+    z-index: 2;
+    transition: all 0.2s ease;
+}
+
+#beat-indicator.blink-detected {
+    background: #FF6B6B;
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+}
+
+@keyframes beat-pulse {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.5); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+#rhythm-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.beat-marker {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 4px;
+    height: 20px;
+    background: #6B8F71;
+    animation: beat-slide 2s linear forwards;
+}
+
+@keyframes beat-slide {
+    0% { left: 0%; opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+}
+
+#rain-meter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    font-size: 8px;
+}
+
+#rain-fill {
+    height: 20px;
+    background: linear-gradient(90deg, #6B8F71, #A6C8E2);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s ease;
+    flex: 1;
+    border: 2px solid #7A5840;
+}
+
+#symphony-canvas-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+}
+
+#raindrop-canvas {
+    border: 3px solid #6B8F71;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #A8D5E2, #F0EBD8);
+}
+
+#symphony-camera {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 80px;
+    height: 60px;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#symphony-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#symphony-detection {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#symphony-score {
+    display: flex;
+    justify-content: space-around;
+    font-size: 8px;
+    margin-top: 16px;
+    background: #EAC8CA;
+    border: 2px solid #BCA37F;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.mini-game-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/* Enhanced Visual Effects */
+.water-effect {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    animation: waterDrop 1s ease-out forwards;
+    pointer-events: none;
+    z-index: 10;
+}
+
+@keyframes waterDrop {
+    0% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-20px) scale(1.2);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateX(-50%) translateY(-5px) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(5px) scale(0.8);
+    }
+}
+
+.growing {
+    animation: plantGrow 0.5s ease-out;
+}
+
+@keyframes plantGrow {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.rain-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(transparent 0%, rgba(166, 200, 226, 0.3) 20%, rgba(166, 200, 226, 0.1) 100%);
+    animation: rain 2s ease-in-out;
+    pointer-events: none;
+    z-index: 50;
+}
+
+@keyframes rain {
+    0%, 100% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Sparkle effects for perfect timing */
+.sparkle-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFD700;
+    font-size: 16px;
+    animation: sparkle 0.6s ease-out forwards;
+    pointer-events: none;
+    z-index: 20;
+}
+
+@keyframes sparkle {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.5) rotate(0deg);
+    }
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2) rotate(180deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8) rotate(360deg);
+    }
+}
+
+/* Garden Status Panel */
+#garden-status-panel {
+    background: rgba(216, 197, 160, 0.95);
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 3px 3px 0px #8C6A89;
+    backdrop-filter: blur(2px);
+}
+
+#garden-status-panel h3 {
+    font-size: 9px;
+    color: #6B8F71;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+#garden-status-text {
+    font-size: 7px;
+    line-height: 1.4;
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 6px;
+    padding: 8px;
+    color: #7A5840;
+    text-align: center;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Button press feedback */
+.menu-btn:active,
+.small-btn:active,
+#controls-panel button:active {
+    transform: translate(2px, 2px) !important;
+    box-shadow: 1px 1px 0px #8C6A89 !important;
+}
+
+/* Blink indicator enhancement */
+.blink-flash {
+    background: radial-gradient(circle, #FFD700, #FFA500);
+    box-shadow: 0 0 10px #FFD700;
+}
+
+/* Plant slot hover effects */
+.plant-slot:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+/* Flower Progress Indicators using pixel art */
+.flower-progress {
+    width: 24px;
+    height: 24px;
+    background-image: url('./assets/ui/flower_progress_empty.png');
+    background-size: 24px 24px;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.flower-progress[data-progress="25"] {
+    background-image: url('./assets/ui/flower_progress_25.png');
+}
+
+.flower-progress[data-progress="50"] {
+    background-image: url('./assets/ui/flower_progress_50.png');
+}
+
+.flower-progress[data-progress="75"] {
+    background-image: url('./assets/ui/flower_progress_75.png');
+}
+
+.flower-progress[data-progress="100"] {
+    background-image: url('./assets/ui/flower_progress_100.png');
+}
+
+/* Game Screen Layout */
+#game-screen {
+    background-image: url('./assets/backgrounds/main_menu_background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+#game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(216, 197, 160, 0.95);
+    border: 4px solid #BCA37F;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 4px 4px 0px #8C6A89;
+    margin-bottom: 16px;
+    backdrop-filter: blur(2px);
+}
+
+.header-left h1 {
+    font-size: 14px;
+    color: #6B8F71;
+    text-shadow: 1px 1px 0px #F0EBD8;
+    margin: 0;
+}
+
+.header-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 8px;
+}
+
+.header-stats span {
+    background: #F0EBD8;
+    padding: 6px 10px;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px #8C6A89;
+    min-width: 70px;
+    text-align: center;
+}
+
+/* Day Clock Styles */
+#day-clock {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #F0EBD8;
+    padding: 6px 10px;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    box-shadow: 2px 2px 0px #8C6A89;
+    min-width: 120px;
+}
+
+.sun-icon {
+    font-size: 12px;
+    animation: sunRotate 20s linear infinite;
+}
+
+@keyframes sunRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.clock-progress {
+    width: 40px;
+    height: 8px;
+    background: #BCA37F;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #7A5840;
+}
+
+#clock-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FFD700, #FFA500);
+    width: 100%;
+    transition: width 1s ease;
+    border-radius: 3px;
+}
+
+#session-timer {
+    font-size: 7px;
+    color: #7A5840;
+    font-weight: bold;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-width: auto !important;
+}
+
+.small-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    padding: 8px 12px;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    background: #F0EBD8;
+    color: #7A5840;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px #8C6A89;
+}
+
+.small-btn:hover {
+    background: #EAC8CA;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #8C6A89;
+}
+
+/* Main Game Area Layout */
+#main-game-area {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+}
+
+#garden-container {
+    flex: 2;
+    min-width: 500px;
+}
+
+#game-sidebar {
+    flex: 1;
+    min-width: 320px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.panel {
+    background: #D8C5A0;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 3px 3px 0px #8C6A89;
+}
+
+.panel h3 {
+    font-size: 9px;
+    color: #6B8F71;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+#controls-panel, #info-panel, #tips-panel, #daily-quests-panel {
+    background: rgba(216, 197, 160, 0.95);
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 3px 3px 0px #8C6A89;
+    backdrop-filter: blur(2px);
+}
+
+/* Daily Quest Styles */
+#daily-quests-panel {
+    margin-bottom: 12px;
+}
+
+.quest-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    margin: 4px 0;
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    font-size: 8px;
+}
+
+.quest-icon {
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.quest-text {
+    flex: 1;
+    color: #7A5840;
+}
+
+.quest-progress {
+    color: #6B8F71;
+    font-weight: bold;
+}
+
+.quest-item.completed {
+    background: #7FBF7F;
+    color: #F0EBD8;
+}
+
+.quest-item.completed .quest-text,
+.quest-item.completed .quest-progress {
+    color: #F0EBD8;
+}
+
+#controls-panel button {
+    width: 100%;
+    margin-bottom: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 10px;
+    border: 2px solid #BCA37F;
+    border-radius: 6px;
+    background: #F0EBD8;
+    color: #7A5840;
+    cursor: pointer;
+    box-shadow: 2px 2px 0px #8C6A89;
+}
+
+#controls-panel button:hover {
+    background: #EAC8CA;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #8C6A89;
+}
+
+#controls-panel button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 2px 2px 0px #8C6A89;
+}
+
+#mini-stats {
+    font-size: 7px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 6px 0;
+    padding: 4px 8px;
+    background: #F0EBD8;
+    border: 1px solid #BCA37F;
+    border-radius: 4px;
+}
+
+.stat-label {
+    color: #7A5840;
+}
+
+#current-tip {
+    font-size: 7px;
+    line-height: 1.4;
+    background: #F0EBD8;
+    border: 2px solid #BCA37F;
+    border-radius: 6px;
+    padding: 8px;
+    color: #7A5840;
+}
+
+/* Gaze Interaction Styles */
+.gaze-highlight {
+    border: 2px solid #F1D88C !important;
+    box-shadow: 0 0 4px rgba(241, 216, 140, 0.8) !important;
+    transition: all 0.2s ease !important;
+    position: relative;
+}
+
+.gaze-highlight::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid #EAC8CA;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.gaze-targeted {
+    border: 2px solid #6B8F71 !important;
+    box-shadow: 0 0 6px rgba(107, 143, 113, 1) !important;
+    transform: scale(1.05) !important;
+    animation: gazeGlow 1s ease-in-out !important;
+    z-index: 10 !important;
+}
+
+@keyframes gazeGlow {
+    0%, 100% { 
+        box-shadow: 0 0 6px rgba(107, 143, 113, 1);
+        transform: scale(1.05);
+    }
+    50% { 
+        box-shadow: 0 0 8px rgba(107, 143, 113, 1);
+        transform: scale(1.1);
+    }
+}
+
+/* Camera Container - Overlay in Garden - Larger Size */
+#camera-container {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 320px;
+    height: 240px;
+    background: #D8C5A0;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: 4px 4px 0px #8C6A89;
+    z-index: 100;
+}
+
+#camera-feed {
+    width: 304px;
+    height: 224px;
+    border: 2px solid #6B8F71;
+    border-radius: 4px;
+    background: #F0EBD8;
+    image-rendering: pixelated;
+}
+
+#detection-canvas {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 304px;
+    height: 224px;
+    pointer-events: none;
+    border-radius: 4px;
+    z-index: 10;
+}
+
+#gaze-canvas {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 304px;
+    height: 224px;
+    pointer-events: none;
+    border-radius: 4px;
+    z-index: 15;
+}
+
+#blink-indicator {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: #FFD700;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+    z-index: 20;
+}
+
+.blink-flash {
+    animation: blinkPulse 0.3s ease-out;
+}
+
+@keyframes blinkPulse {
+    0% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(0.5); }
+}
+
+/* Blink Debug Panel - Always visible next to camera */
+#blink-debug-info {
+    position: absolute;
+    bottom: 16px;
+    right: 360px; /* Position to the left of larger camera */
+    width: 220px;
+    background: #D8C5A0;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 4px 4px 0px #8C6A89;
+    z-index: 99;
+    font-size: 8px;
+    color: #7A5840;
+}
+
+#blink-debug-info h4 {
+    color: #6B8F71;
+    margin-bottom: 8px;
+    font-size: 9px;
+    text-align: center;
+}
+
+#blink-debug-content div {
+    margin: 4px 0;
+    line-height: 1.3;
+}
+
+#blink-debug-content .debug-status {
+    color: #6B8F71;
+    font-weight: bold;
+}
+
+#blink-debug-content .debug-error {
+    color: #8C6A89;
+}
+
+#blink-debug-content .debug-success {
+    color: #7FBF7F;
+}
+
+#garden-container {
+    background: rgba(240, 235, 216, 0.95);
+    border: 4px solid #BCA37F;
+    border-radius: 8px;
+    padding: 16px;
+    min-height: 400px;
+    box-shadow: 4px 4px 0px #8C6A89;
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
+}
+
+#garden-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 96px);
+    grid-template-rows: repeat(8, 96px);
+    gap: 0;
+    margin: 0 auto;
+    width: 960px;
+    height: 768px;
+    background-image: 
+        url('./environment/dark_earth.png');
+    background-size: 96px 96px;
+    background-position: 0 0;
+    image-rendering: pixelated;
+}
+
+.plant-slot {
+    width: 96px;
+    height: 96px;
+    /* border: 1px solid transparent; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background-size: 96px 96px;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: all 0.2s ease;
+    position: relative;
+    cursor: pointer;
+    image-rendering: pixelated;
+}
+
+/* All tiles inherit grass background from garden-grid by default */
+/* Create bordered dark earth planting area with directional grass borders */
+
+/* Create bordered dark earth planting area using 96px directional grass tiles */
+/* Top border: [corner_downright][down (3 tiles)][corner_downleft] */
+/* Top border: down.png → [0, -96, -192] scaled for 96px tiles */
+.plant-slot:nth-child(23){ background-image:url('./environment/grass/corner_downright.png'); background-size: 96px 96px; }
+.plant-slot:nth-child(24){
+  background-image:url('./environment/grass/down.png');
+  background-size:288px 96px; background-position:0 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(25){
+  background-image:url('./environment/grass/down.png');
+  background-size:288px 96px; background-position:-96px 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(26){
+  background-image:url('./environment/grass/down.png');
+  background-size:288px 96px; background-position:-192px 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(27){ background-image:url('./environment/grass/corner_downleft.png'); background-size: 96px 96px; }
+
+/* Vertical borders: right/left.png → [0, -96, -192] scaled for 96px tiles */
+.plant-slot:nth-child(33){
+  background-image:url('./environment/grass/right.png');
+  background-size:96px 288px; background-position:0 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(43){
+  background-image:url('./environment/grass/right.png');
+  background-size:96px 288px; background-position:0 -96px; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(53){
+  background-image:url('./environment/grass/right.png');
+  background-size:96px 288px; background-position:0 -192px; background-repeat:no-repeat;
+}
+
+.plant-slot:nth-child(37){
+  background-image:url('./environment/grass/left.png');
+  background-size:96px 288px; background-position:0 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(47){
+  background-image:url('./environment/grass/left.png');
+  background-size:96px 288px; background-position:0 -96px; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(57){
+  background-image:url('./environment/grass/left.png');
+  background-size:96px 288px; background-position:0 -192px; background-repeat:no-repeat;
+}
+
+/* Bottom border: up.png → [0, -96, -192] scaled for 96px tiles */
+.plant-slot:nth-child(63){ background-image:url('./environment/grass/corner_upright.png'); background-size: 96px 96px; }
+.plant-slot:nth-child(64){
+  background-image:url('./environment/grass/up.png');
+  background-size:288px 96px; background-position:0 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(65){
+  background-image:url('./environment/grass/up.png');
+  background-size:288px 96px; background-position:-96px 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(66){
+  background-image:url('./environment/grass/up.png');
+  background-size:288px 96px; background-position:-192px 0; background-repeat:no-repeat;
+}
+.plant-slot:nth-child(67){ background-image:url('./environment/grass/corner_upleft.png'); background-size: 96px 96px; }
+
+/* Central rectangular dark earth area for planting (3x3 rectangle inside the border) */
+/* Row 4 (slots 34-36): 3 tiles wide inside the border */
+.plant-slot:nth-child(34), .plant-slot:nth-child(35), .plant-slot:nth-child(36) {
+    background-image: url('./environment/dark_earth.png');
+    cursor: pointer; /* Show these are clickable for planting */
+}
+
+/* Row 5 (slots 44-46): 3 tiles wide inside the border */
+.plant-slot:nth-child(44), .plant-slot:nth-child(45), .plant-slot:nth-child(46) {
+    background-image: url('./environment/dark_earth.png');
+    cursor: pointer;
+}
+
+/* Row 6 (slots 54-56): 3 tiles wide inside the border */
+.plant-slot:nth-child(54), .plant-slot:nth-child(55), .plant-slot:nth-child(56) {
+    background-image: url('./environment/dark_earth.png');
+    cursor: pointer;
+}
+
+/* Add grass.png background to all outer tiles (outside the border area) */
+.plant-slot:nth-child(-n+22), /* Rows 1-2 (slots 1-22) */
+.plant-slot:nth-child(28), .plant-slot:nth-child(29), .plant-slot:nth-child(30), /* Row 3 after border */
+.plant-slot:nth-child(31), .plant-slot:nth-child(32), .plant-slot:nth-child(38), .plant-slot:nth-child(39), .plant-slot:nth-child(40), /* Row 4 outside border */
+.plant-slot:nth-child(41), .plant-slot:nth-child(42), .plant-slot:nth-child(48), .plant-slot:nth-child(49), .plant-slot:nth-child(50), /* Row 5 outside border */
+.plant-slot:nth-child(51), .plant-slot:nth-child(52), .plant-slot:nth-child(58), .plant-slot:nth-child(59), .plant-slot:nth-child(60), /* Row 6 outside border */
+.plant-slot:nth-child(61), .plant-slot:nth-child(62), .plant-slot:nth-child(68), .plant-slot:nth-child(69), .plant-slot:nth-child(70), /* Row 7 outside border */
+.plant-slot:nth-child(n+71) /* Rows 8 (slots 71-80) */ {
+    background-image: url('./environment/grass/grass.png');
+    background-size: 96px 96px;
+}
+
+/* Grass areas are not plantable - only earth tiles (34-36, 44-46, 54-56) are plantable */
+.plant-slot:not(:nth-child(34)):not(:nth-child(35)):not(:nth-child(36)):not(:nth-child(44)):not(:nth-child(45)):not(:nth-child(46)):not(:nth-child(54)):not(:nth-child(55)):not(:nth-child(56)) {
+    cursor: not-allowed;
+}
+
+.plant-slot:hover {
+    filter: brightness(1.1);
+    /* transform: scale(1.05); */
+}
+
+.plant-slot.planted {
+    border: 2px solid #6B8F71;
+}
+
+.plant-slot.wilting {
+    /* border: 1px solid #8C6A89; */
+    animation: wiltShake 0.5s ease-in-out infinite alternate;
+    filter: saturate(0.5) brightness(0.8);
+}
+
+@keyframes wiltShake {
+    0% { transform: rotate(-1deg); }
+    100% { transform: rotate(1deg); }
+}
+
+.plant-slot.growing {
+    animation: growPulse 0.5s ease-out;
+}
+
+@keyframes growPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+.water-effect {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #4169E1;
+    font-size: 1.5em;
+    opacity: 0;
+    animation: waterDrop 1s ease-out;
+}
+
+@keyframes waterDrop {
+    0% { opacity: 1; transform: translateX(-50%) translateY(-20px); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+}
+
+.rain-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="10" r="1" fill="%234169E1" opacity="0.6"/><circle cx="30" cy="20" r="1" fill="%234169E1" opacity="0.6"/><circle cx="50" cy="15" r="1" fill="%234169E1" opacity="0.6"/><circle cx="70" cy="25" r="1" fill="%234169E1" opacity="0.6"/><circle cx="90" cy="5" r="1" fill="%234169E1" opacity="0.6"/></svg>');
+    animation: rainFall 1s linear;
+}
+
+@keyframes rainFall {
+    0% { background-position: 0 -100px; opacity: 1; }
+    100% { background-position: 0 100px; opacity: 0; }
+}
+
+#controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+}
+
+button {
+    padding: 8px 12px;
+    font-size: 8px;
+    font-family: 'Press Start 2P', monospace;
+    border: 2px solid #BCA37F;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 2px 2px 0px #8C6A89;
+    min-height: 32px;
+}
+
+#start-btn {
+    background: #6B8F71;
+    color: #F0EBD8;
+}
+
+#start-btn:hover {
+    background: #7A5840;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #8C6A89;
+}
+
+#pause-btn {
+    background: #F1D88C;
+    color: #7A5840;
+}
+
+#pause-btn:hover {
+    background: #EAC8CA;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #8C6A89;
+}
+
+#look-away-btn {
+    background: #A6C8E2;
+    color: #7A5840;
+}
+
+#look-away-btn:hover {
+    background: #8C6A89;
+    color: #F0EBD8;
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px #7A5840;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+#session-summary.hidden {
+    display: none;
+}
+
+#session-summary .modal-content {
+    /* Override modal-content max-width for wider session summary */
+    max-width: 700px;
+    width: 90vw;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+#session-summary h2 {
+    color: #6B8F71;
+    margin-bottom: 16px;
+    font-size: 16px;
+    text-shadow: 1px 1px 0px #F0EBD8;
+}
+
+#summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+}
+
+.summary-stat {
+    background: #EAC8CA;
+    padding: 12px;
+    border-radius: 8px;
+    border: 2px solid #BCA37F;
+    box-shadow: 2px 2px 0px #8C6A89;
+    text-align: center;
+    margin-bottom: 4px;
+}
+
+.summary-stat h4 {
+    color: #7A5840;
+    margin-bottom: 6px;
+    font-size: 9px;
+    line-height: 1.2;
+}
+
+.summary-stat .value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #6B8F71;
+}
+
+/* Summary section groups */
+.summary-section {
+    background: #F0EBD8;
+    border: 3px solid #BCA37F;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 4px 4px 0px #8C6A89;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-section h3 {
+    color: #6B8F71;
+    font-size: 12px;
+    margin-bottom: 8px;
+    text-align: center;
+    border-bottom: 2px solid #BCA37F;
+    padding-bottom: 6px;
+}
+
+.summary-section.quest-section {
+    grid-column: 1 / -1;
+    margin-top: 16px;
+}
+
+.quest-header {
+    margin-bottom: 12px;
+}
+
+.quest-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.quest-item-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #EAC8CA;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #BCA37F;
+    font-size: 7px;
+    line-height: 1.2;
+}
+
+.quest-item-summary .quest-progress {
+    font-weight: bold;
+    color: #6B8F71;
+}
+
+#new-session-btn {
+    background: #6B8F71;
+    color: #F0EBD8;
+    font-size: 10px;
+    padding: 12px 24px;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px #8C6A89;
+    transition: all 0.2s ease;
+}
+
+#new-session-btn:hover {
+    background: #7FBF7F;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #8C6A89;
+}
+
+#back-to-menu-btn {
+    background: #EAC8CA;
+    color: #7A5840;
+    font-size: 10px;
+    padding: 12px 24px;
+    border: 3px solid #BCA37F;
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px #8C6A89;
+    transition: all 0.2s ease;
+}
+
+#back-to-menu-btn:hover {
+    background: #F1D88C;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #8C6A89;
+}
+
+#instructions {
+    background: rgba(255,255,255,0.8);
+    border: 2px solid #90EE90;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+#instructions h3 {
+    color: #228B22;
+    margin-bottom: 15px;
+}
+
+#instructions ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+#instructions li {
+    margin: 8px 0;
+    padding: 8px;
+    background: rgba(152, 251, 152, 0.2);
+    border-radius: 10px;
+}
+
+/* Duplicate .garden-thriving removed - using the one defined earlier */
+
+.fatigue-warning {
+    background: rgba(140, 106, 137, 0.3) !important;
+    border-color: #8C6A89 !important;
+    animation: fatigueWarning 1s ease-in-out infinite alternate;
+}
+
+@keyframes fatigueWarning {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(0.9); }
+}
+
+/* Flower-shaped progress bar */
+.flower-progress {
+    width: 24px;
+    height: 24px;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 6C9 6 6 9 6 12C6 15 9 18 12 18C15 18 18 15 18 12C18 9 15 6 12 6Z" fill="%23EAC8CA"/><circle cx="12" cy="12" r="3" fill="%23F1D88C"/></svg>');
+    border: 1px solid #BCA37F;
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    margin-right: 4px;
+}
+
+.flower-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #6B8F71;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.flower-progress[data-progress="25"]::after { transform: translateY(75%); }
+.flower-progress[data-progress="50"]::after { transform: translateY(50%); }
+.flower-progress[data-progress="75"]::after { transform: translateY(25%); }
+.flower-progress[data-progress="100"]::after { transform: translateY(0%); }
+
+/* Pixel art plant sprites */
+.plant-sprite {
+    width: 96px;
+    height: 96px;
+    image-rendering: pixelated;
+    background-size: 96px 96px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Plant sprites with earth backgrounds preserved */
+.plant-sprite.seed { 
+    background-image: url('./assets/plants/seed.png'), url('./environment/dark_earth.png');
+    background-size: 96px 96px, 96px 96px;
+    background-position: center, center;
+}
+.plant-sprite.sprout { 
+    background-image: url('./assets/plants/sprout.png'), url('./environment/dark_earth.png');
+    background-size: 96px 96px, 96px 96px;
+    background-position: center, center;
+}
+.plant-sprite.young { 
+    background-image: url('./assets/plants/young.png'), url('./environment/dark_earth.png');
+    background-size: 96px 96px, 96px 96px;
+    background-position: center, center;
+}
+.plant-sprite.bloom { 
+    background-image: url('./assets/plants/bloom.png'), url('./environment/dark_earth.png');
+    background-size: 96px 96px, 96px 96px;
+    background-position: center, center;
+}
+.plant-sprite.dead { 
+    background-image: url('./assets/plants/dead.png'), url('./environment/dark_earth.png');
+    background-size: 96px 96px, 96px 96px;
+    background-position: center, center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    body { font-size: 6px; }
+    
+    #game-container {
+        padding: 8px;
+    }
+    
+    #stats {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    #camera-feed {
+        width: 240px;
+        height: 180px;
+    }
+    
+    #garden-grid {
+        grid-template-columns: repeat(8, 32px);
+        grid-template-rows: repeat(6, 32px);
+    }
+    
+    .plant-slot {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    
+    #controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    button {
+        width: 80%;
+        max-width: 200px;
+        padding: 4px 8px;
+        font-size: 6px;
+    }
+}

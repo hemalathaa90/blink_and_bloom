@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Gaze Detection Demo - Blink & Bloom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .demo-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .camera-section {
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .demo-area {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        #camera-feed {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid #555;
+        }
+        
+        #gaze-canvas {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            pointer-events: none;
+            border-radius: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn.secondary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+        
+        .status {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .interactive-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .interactive-item {
+            aspect-ratio: 1;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .interactive-item:hover {
+            transform: scale(1.05);
+            border-color: #ffaa00;
+        }
+        
+        .interactive-item.gaze-highlight {
+            background: linear-gradient(45deg, #ffff00, #ffa500) !important;
+            border-color: #ffff00 !important;
+            box-shadow: 0 0 25px rgba(255, 255, 0, 0.6) !important;
+            transform: scale(1.1) !important;
+        }
+        
+        .interactive-item.gaze-targeted {
+            background: linear-gradient(45deg, #44ff44, #00aa00) !important;
+            border-color: #44ff44 !important;
+            box-shadow: 0 0 35px rgba(68, 255, 68, 0.8) !important;
+            transform: scale(1.15) !important;
+            animation: targetPulse 1s ease-in-out infinite !important;
+        }
+        
+        @keyframes targetPulse {
+            0%, 100% { 
+                box-shadow: 0 0 35px rgba(68, 255, 68, 0.8);
+            }
+            50% { 
+                box-shadow: 0 0 50px rgba(68, 255, 68, 1);
+            }
+        }
+        
+        .info-panel {
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .info-item label {
+            color: #ccc;
+        }
+        
+        .info-item span {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        
+        .feature-showcase {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-showcase h3 {
+            color: #ffaa00;
+            margin-bottom: 15px;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffaa00, #44ff44);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .gaze-trail {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 68, 68, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: opacity 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Enhanced Gaze Detection Demo</h1>
+        
+        <div class="demo-section">
+            <!-- Camera Section -->
+            <div class="camera-section">
+                <h2>📹 Camera & Detection</h2>
+                <div style="position: relative;">
+                    <video id="camera-feed" autoplay muted playsinline></video>
+                    <canvas id="gaze-canvas"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" id="start-btn">🎯 Start Detection</button>
+                    <button class="btn secondary" id="calibrate-btn">🎯 Calibrate</button>
+                    <button class="btn secondary" id="debug-btn">🔍 Debug Panel</button>
+                    <button class="btn danger" id="stop-btn">⏹️ Stop</button>
+                </div>
+                
+                <div class="status" id="camera-status">
+                    Camera Status: Not started
+                </div>
+            </div>
+            
+            <!-- Interactive Demo Area -->
+            <div class="demo-area">
+                <h2>🎮 Interactive Demo Area</h2>
+                <p>Look at the colored squares below - they will light up when you gaze at them!</p>
+                
+                <div class="interactive-grid" id="demo-grid">
+                    <div class="interactive-item" data-id="0">🌸</div>
+                    <div class="interactive-item" data-id="1">🌿</div>
+                    <div class="interactive-item" data-id="2">🌺</div>
+                    <div class="interactive-item" data-id="3">🍀</div>
+                    <div class="interactive-item" data-id="4">🌻</div>
+                    <div class="interactive-item" data-id="5">🌹</div>
+                    <div class="interactive-item" data-id="6">🌷</div>
+                    <div class="interactive-item" data-id="7">🌼</div>
+                    <div class="interactive-item" data-id="8">🌵</div>
+                    <div class="interactive-item" data-id="9">🎋</div>
+                    <div class="interactive-item" data-id="10">🌾</div>
+                    <div class="interactive-item" data-id="11">🍃</div>
+                </div>
+                
+                <div class="feature-showcase">
+                    <h3>✨ Features Demonstrated:</h3>
+                    <ul>
+                        <li><strong>Real-time gaze cursor</strong> - Red dot follows your gaze</li>
+                        <li><strong>Trail effect</strong> - See where you've been looking</li>
+                        <li><strong>Interactive highlighting</strong> - Items glow when gazed at</li>
+                        <li><strong>Confidence indicators</strong> - Color changes based on detection quality</li>
+                        <li><strong>Calibration system</strong> - Improve accuracy for your setup</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Information Panel -->
+        <div class="info-panel">
+            <h3>📊 Gaze Detection Information</h3>
+            <div class="info-grid" id="gaze-info">
+                <div class="info-item">
+                    <label>Status:</label>
+                    <span id="detection-status">Stopped</span>
+                </div>
+                <div class="info-item">
+                    <label>Gaze X:</label>
+                    <span id="gaze-x">0.000</span>
+                </div>
+                <div class="info-item">
+                    <label>Gaze Y:</label>
+                    <span id="gaze-y">0.000</span>
+                </div>
+                <div class="info-item">
+                    <label>Screen X:</label>
+                    <span id="screen-x">0</span>
+                </div>
+                <div class="info-item">
+                    <label>Screen Y:</label>
+                    <span id="screen-y">0</span>
+                </div>
+                <div class="info-item">
+                    <label>Confidence:</label>
+                    <span id="confidence">0.00</span>
+                </div>
+                <div class="info-item">
+                    <label>Region:</label>
+                    <span id="gaze-region">center</span>
+                </div>
+                <div class="info-item">
+                    <label>Calibrated:</label>
+                    <span id="calibration-status">No</span>
+                </div>
+            </div>
+            
+            <div class="confidence-bar">
+                <div class="confidence-fill" id="confidence-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/gazeDetector.js"></script>
+    <script src="js/gazeCursor.js"></script>
+    <script src="js/gazeDebugPanel.js"></script>
+    
+    <script>
+        class EnhancedGazeDemo {
+            constructor() {
+                this.gazeDetector = new GazeDetector();
+                this.gazeCursor = new GazeCursor();
+                this.debugPanel = null;
+                this.isRunning = false;
+                this.interactionHistory = new Set();
+                
+                this.setupEventListeners();
+                this.setupGazeCallbacks();
+                console.log('🎯 Enhanced Gaze Demo initialized');
+            }
+            
+            setupEventListeners() {
+                document.getElementById('start-btn').addEventListener('click', () => this.startDemo());
+                document.getElementById('stop-btn').addEventListener('click', () => this.stopDemo());
+                document.getElementById('calibrate-btn').addEventListener('click', () => this.startCalibration());
+                document.getElementById('debug-btn').addEventListener('click', () => this.toggleDebug());
+            }
+            
+            setupGazeCallbacks() {
+                this.gazeDetector.onGazeDetected = (gaze, details) => {
+                    this.handleGazeDetection(gaze, details);
+                };
+                
+                this.gazeDetector.onError = (error) => {
+                    console.error('Gaze detection error:', error);
+                    this.updateStatus('Error: ' + error);
+                };
+            }
+            
+            async startDemo() {
+                try {
+                    this.updateStatus('Initializing...');
+                    
+                    // Initialize gaze detector
+                    if (!this.gazeDetector.isInitialized) {
+                        const initialized = await this.gazeDetector.initialize();
+                        if (!initialized) {
+                            throw new Error('Failed to initialize gaze detection');
+                        }
+                    }
+                    
+                    // Start camera
+                    const video = document.getElementById('camera-feed');
+                    const canvas = document.getElementById('gaze-canvas');
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        } 
+                    });
+                    
+                    video.srcObject = stream;
+                    await new Promise(resolve => video.addEventListener('loadedmetadata', resolve));
+                    
+                    // Setup gaze detector
+                    this.gazeDetector.setupCamera(video, canvas);
+                    
+                    // Start detection
+                    this.gazeDetector.startDetection();
+                    this.isRunning = true;
+                    
+                    this.updateStatus('Running');
+                    document.getElementById('detection-status').textContent = 'Active';
+                    
+                    // Initialize debug panel
+                    if (!this.debugPanel) {
+                        this.debugPanel = new GazeDebugPanel(this.gazeDetector);
+                        window.gazeDebugPanel = this.debugPanel;
+                    }
+                    
+                    console.log('✅ Enhanced gaze demo started successfully');
+                    
+                } catch (error) {
+                    console.error('Failed to start demo:', error);
+                    this.updateStatus('Failed to start: ' + error.message);
+                }
+            }
+            
+            stopDemo() {
+                if (this.gazeDetector) {
+                    this.gazeDetector.stopDetection();
+                }
+                
+                this.gazeCursor.hide();
+                this.isRunning = false;
+                
+                // Stop camera
+                const video = document.getElementById('camera-feed');
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                
+                this.updateStatus('Stopped');
+                document.getElementById('detection-status').textContent = 'Stopped';
+                
+                // Clear all highlights
+                document.querySelectorAll('.interactive-item').forEach(item => {
+                    item.classList.remove('gaze-highlight', 'gaze-targeted');
+                });
+                
+                console.log('⏹️ Enhanced gaze demo stopped');
+            }
+            
+            startCalibration() {
+                if (this.gazeDetector && this.gazeDetector.startCalibration) {
+                    this.gazeDetector.startCalibration();
+                } else {
+                    alert('Please start detection first');
+                }
+            }
+            
+            toggleDebug() {
+                if (!this.debugPanel) {
+                    this.debugPanel = new GazeDebugPanel(this.gazeDetector);
+                    window.gazeDebugPanel = this.debugPanel;
+                }
+                
+                this.debugPanel.toggle();
+            }
+            
+            handleGazeDetection(gaze, details) {
+                if (!this.isRunning) return;
+                
+                // Convert to screen coordinates
+                const screenCoords = this.gazeDetector.gazeToScreenCoordinates(gaze);
+                
+                // Update gaze cursor
+                this.gazeCursor.updatePosition({
+                    ...gaze,
+                    confidence: details.confidence || 0.5
+                }, screenCoords);
+                
+                // Update info panel
+                this.updateGazeInfo(gaze, details, screenCoords);
+                
+                // Handle interactive elements
+                this.handleInteractiveElements(screenCoords, details.confidence || 0.5);
+            }
+            
+            updateGazeInfo(gaze, details, screenCoords) {
+                document.getElementById('gaze-x').textContent = gaze.x.toFixed(3);
+                document.getElementById('gaze-y').textContent = gaze.y.toFixed(3);
+                document.getElementById('screen-x').textContent = Math.round(screenCoords.x);
+                document.getElementById('screen-y').textContent = Math.round(screenCoords.y);
+                document.getElementById('confidence').textContent = (details.confidence || 0).toFixed(2);
+                document.getElementById('gaze-region').textContent = this.gazeDetector.getGazeRegion();
+                document.getElementById('calibration-status').textContent = 
+                    this.gazeDetector.screenCalibration?.isCalibrated ? 'Yes' : 'No';
+                
+                // Update confidence bar
+                const confidenceBar = document.getElementById('confidence-bar');
+                const confidence = (details.confidence || 0) * 100;
+                confidenceBar.style.width = confidence + '%';
+            }
+            
+            handleInteractiveElements(screenCoords, confidence) {
+                if (confidence < 0.4) return; // Skip low confidence detections
+                
+                // Clear previous highlights
+                document.querySelectorAll('.interactive-item.gaze-highlight').forEach(item => {
+                    item.classList.remove('gaze-highlight');
+                });
+                
+                // Find element at gaze position
+                const element = document.elementFromPoint(screenCoords.x, screenCoords.y);
+                if (element && element.classList.contains('interactive-item')) {
+                    element.classList.add('gaze-highlight');
+                    
+                    // Add targeted effect for high confidence
+                    if (confidence > 0.7) {
+                        const itemId = element.dataset.id;
+                        if (!this.interactionHistory.has(itemId)) {
+                            element.classList.add('gaze-targeted');
+                            this.gazeCursor.showInteraction(element);
+                            this.interactionHistory.add(itemId);
+                            
+                            // Create sparkle effect
+                            this.createSparkleEffect(element);
+                            
+                            // Remove targeted class after delay
+                            setTimeout(() => {
+                                element.classList.remove('gaze-targeted');
+                                this.interactionHistory.delete(itemId);
+                            }, 2000);
+                        }
+                    }
+                }
+            }
+            
+            createSparkleEffect(element) {
+                const rect = element.getBoundingClientRect();
+                const sparkleCount = 6;
+                
+                for (let i = 0; i < sparkleCount; i++) {
+                    const sparkle = document.createElement('div');
+                    sparkle.style.position = 'absolute';
+                    sparkle.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                    sparkle.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                    sparkle.style.width = '8px';
+                    sparkle.style.height = '8px';
+                    sparkle.style.background = '#ffff00';
+                    sparkle.style.borderRadius = '50%';
+                    sparkle.style.pointerEvents = 'none';
+                    sparkle.style.zIndex = '10000';
+                    sparkle.style.animation = 'sparkle 1.2s ease-out forwards';
+                    
+                    document.body.appendChild(sparkle);
+                    
+                    setTimeout(() => {
+                        if (sparkle.parentNode) {
+                            sparkle.remove();
+                        }
+                    }, 1200);
+                }
+            }
+            
+            updateStatus(message) {
+                document.getElementById('camera-status').textContent = 'Camera Status: ' + message;
+            }
+        }
+        
+        // Initialize demo when page loads
+        let gazeDemo;
+        window.addEventListener('load', () => {
+            gazeDemo = new EnhancedGazeDemo();
+        });
+        
+        // Add sparkle animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkle {
+                0% { transform: scale(0) rotate(0deg); opacity: 1; }
+                50% { transform: scale(1.5) rotate(180deg); opacity: 0.8; }
+                100% { transform: scale(0) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

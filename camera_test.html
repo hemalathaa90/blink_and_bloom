@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Test - Blink & Bloom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        video {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background: #000;
+            border-radius: 8px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .success { background: rgba(0, 255, 0, 0.2); }
+        .error { background: rgba(255, 0, 0, 0.2); }
+        .warning { background: rgba(255, 165, 0, 0.2); }
+        
+        .info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📷 Camera Access Test</h1>
+        
+        <div class="test-section">
+            <h3>Step 1: Check Browser Support</h3>
+            <div id="browser-support"></div>
+            <button onclick="checkBrowserSupport()">Check Support</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>Step 2: Test Camera Access</h3>
+            <video id="video" autoplay muted playsinline></video>
+            <div>
+                <button onclick="requestCamera()">Request Camera</button>
+                <button onclick="stopCamera()">Stop Camera</button>
+            </div>
+            <div id="camera-status"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>Step 3: Diagnose Issues</h3>
+            <div id="diagnostics"></div>
+            <button onclick="runDiagnostics()">Run Diagnostics</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>System Information</h3>
+            <div id="system-info"></div>
+        </div>
+    </div>
+
+    <script src="js/cameraUtils.js"></script>
+    <script>
+        let currentStream = null;
+        
+        async function checkBrowserSupport() {
+            const support = document.getElementById('browser-support');
+            
+            const checks = {
+                'MediaDevices API': !!navigator.mediaDevices,
+                'getUserMedia': !!navigator.mediaDevices?.getUserMedia,
+                'enumerateDevices': !!navigator.mediaDevices?.enumerateDevices,
+                'Permissions API': !!navigator.permissions,
+                'Secure Context (HTTPS/localhost)': window.isSecureContext
+            };
+            
+            let html = '<div class="info">';
+            Object.entries(checks).forEach(([feature, supported]) => {
+                const status = supported ? '✅' : '❌';
+                const color = supported ? 'lightgreen' : 'lightcoral';
+                html += `<div>${status} <span style="color: ${color}">${feature}</span></div>`;
+            });
+            html += '</div>';
+            
+            // Try to get available cameras
+            try {
+                if (navigator.mediaDevices?.enumerateDevices) {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    const cameras = devices.filter(device => device.kind === 'videoinput');
+                    html += `<div class="info">Found ${cameras.length} camera(s)</div>`;
+                    
+                    if (cameras.length > 0) {
+                        html += '<pre>' + JSON.stringify(cameras, null, 2) + '</pre>';
+                    }
+                }
+            } catch (error) {
+                html += `<div class="error">Error enumerating devices: ${error.message}</div>`;
+            }
+            
+            support.innerHTML = html;
+        }
+        
+        async function requestCamera() {
+            const status = document.getElementById('camera-status');
+            const video = document.getElementById('video');
+            
+            try {
+                status.innerHTML = '<div class="warning">Requesting camera access...</div>';
+                
+                // Stop any existing stream
+                if (currentStream) {
+                    currentStream.getTracks().forEach(track => track.stop());
+                }
+                
+                // Request camera with progressive fallback
+                const constraints = [
+                    {
+                        video: {
+                            width: { ideal: 640, min: 320 },
+                            height: { ideal: 480, min: 240 },
+                            facingMode: 'user',
+                            frameRate: { ideal: 30, min: 15 }
+                        }
+                    },
+                    {
+                        video: {
+                            width: 320,
+                            height: 240
+                        }
+                    },
+                    {
+                        video: true
+                    }
+                ];
+                
+                let stream = null;
+                let lastError = null;
+                
+                for (let i = 0; i < constraints.length; i++) {
+                    try {
+                        console.log(`Trying constraint set ${i + 1}:`, constraints[i]);
+                        status.innerHTML = `<div class="warning">Trying configuration ${i + 1}/${constraints.length}...</div>`;
+                        
+                        stream = await Promise.race([
+                            navigator.mediaDevices.getUserMedia(constraints[i]),
+                            new Promise((_, reject) => 
+                                setTimeout(() => reject(new Error('Timeout after 10 seconds')), 10000)
+                            )
+                        ]);
+                        
+                        break; // Success!
+                        
+                    } catch (error) {
+                        console.warn(`Configuration ${i + 1} failed:`, error);
+                        lastError = error;
+                        
+                        if (error.name === 'NotAllowedError') {
+                            throw error; // Don't retry permission errors
+                        }
+                    }
+                }
+                
+                if (!stream) {
+                    throw lastError || new Error('All camera configurations failed');
+                }
+                
+                // Set up video stream
+                video.srcObject = stream;
+                currentStream = stream;
+                
+                // Wait for video to load
+                await new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Video load timeout')), 5000);
+                    
+                    video.onloadedmetadata = () => {
+                        clearTimeout(timeout);
+                        resolve();
+                    };
+                    
+                    video.onerror = (error) => {
+                        clearTimeout(timeout);
+                        reject(error);
+                    };
+                });
+                
+                // Get stream info
+                const videoTrack = stream.getVideoTracks()[0];
+                const settings = videoTrack.getSettings();
+                
+                status.innerHTML = `
+                    <div class="success">✅ Camera access successful!</div>
+                    <div class="info">
+                        <div>Resolution: ${settings.width}x${settings.height}</div>
+                        <div>Frame Rate: ${settings.frameRate} fps</div>
+                        <div>Device: ${videoTrack.label || 'Unknown'}</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Camera access failed:', error);
+                
+                let errorMsg = `❌ Camera access failed: ${error.message}`;
+                let solutions = [];
+                
+                switch (error.name) {
+                    case 'NotAllowedError':
+                        solutions.push('Click the camera icon in your browser\'s address bar and allow camera access');
+                        solutions.push('Check if another application is using the camera');
+                        break;
+                    case 'NotFoundError':
+                        solutions.push('Make sure a camera is connected to your device');
+                        break;
+                    case 'NotReadableError':
+                        solutions.push('Close other applications that might be using the camera');
+                        solutions.push('Try refreshing the page');
+                        break;
+                    case 'OverconstrainedError':
+                        solutions.push('Your camera doesn\'t support the requested resolution');
+                        break;
+                    case 'SecurityError':
+                        solutions.push('Try using HTTPS or localhost');
+                        break;
+                    default:
+                        solutions.push('Try refreshing the page');
+                        solutions.push('Try a different browser');
+                        break;
+                }
+                
+                let html = `<div class="error">${errorMsg}</div>`;
+                if (solutions.length > 0) {
+                    html += '<div class="info"><strong>Try these solutions:</strong><ul>';
+                    solutions.forEach(solution => {
+                        html += `<li>${solution}</li>`;
+                    });
+                    html += '</ul></div>';
+                }
+                
+                status.innerHTML = html;
+            }
+        }
+        
+        function stopCamera() {
+            const status = document.getElementById('camera-status');
+            const video = document.getElementById('video');
+            
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+                video.srcObject = null;
+                status.innerHTML = '<div class="warning">Camera stopped</div>';
+            } else {
+                status.innerHTML = '<div class="warning">No active camera stream</div>';
+            }
+        }
+        
+        async function runDiagnostics() {
+            const diagnostics = document.getElementById('diagnostics');
+            let html = '<div class="info"><strong>Diagnostic Results:</strong></div>';
+            
+            // Check protocol
+            html += `<div>Protocol: ${location.protocol}</div>`;
+            html += `<div>Hostname: ${location.hostname}</div>`;
+            html += `<div>Secure Context: ${window.isSecureContext ? '✅' : '❌'}</div>`;
+            
+            // Check permissions
+            try {
+                if (navigator.permissions) {
+                    const result = await navigator.permissions.query({name: 'camera'});
+                    html += `<div>Camera Permission: ${result.state}</div>`;
+                }
+            } catch (error) {
+                html += `<div>Camera Permission: Unknown (${error.message})</div>`;
+            }
+            
+            // Check for common issues
+            const issues = [];
+            
+            if (location.protocol !== 'https:' && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+                issues.push('Not using HTTPS or localhost');
+            }
+            
+            if (!navigator.mediaDevices) {
+                issues.push('MediaDevices API not available');
+            }
+            
+            if (issues.length > 0) {
+                html += '<div class="error"><strong>Issues found:</strong><ul>';
+                issues.forEach(issue => {
+                    html += `<li>${issue}</li>`;
+                });
+                html += '</ul></div>';
+            } else {
+                html += '<div class="success">No obvious issues found</div>';
+            }
+            
+            diagnostics.innerHTML = html;
+        }
+        
+        function showSystemInfo() {
+            const info = document.getElementById('system-info');
+            
+            const systemInfo = {
+                'User Agent': navigator.userAgent,
+                'Platform': navigator.platform,
+                'Languages': navigator.languages.join(', '),
+                'Online': navigator.onLine,
+                'Cookies Enabled': navigator.cookieEnabled,
+                'Screen Resolution': `${screen.width}x${screen.height}`,
+                'Viewport': `${window.innerWidth}x${window.innerHeight}`
+            };
+            
+            let html = '<div class="info">';
+            Object.entries(systemInfo).forEach(([key, value]) => {
+                html += `<div><strong>${key}:</strong> ${value}</div>`;
+            });
+            html += '</div>';
+            
+            info.innerHTML = html;
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showSystemInfo();
+            checkBrowserSupport();
+        });
+    </script>
+</body>
+</html>

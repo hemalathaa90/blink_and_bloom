@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blink & B    <!-- Session Summary Modal -->
+    <div id="session-summary" class="modal hidden">
+        <div class="modal-content">
+            <h2>Session Complete! 🌸</h2>
+            <div id="summary-stats"></div>
+            <div class="modal-buttons">
+                <button id="new-session-btn" class="menu-btn primary">🌱 New Session</button>
+                <button id="back-to-menu-btn" class="menu-btn">🏠 Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Symphony Results Modal -->
+    <div id="symphony-results" class="modal hidden">
+        <div class="modal-content">
+            <h2>🎵 Symphony Complete! 🎵</h2>
+            <div id="symphony-final-stats">
+                <div class="symphony-stat">
+                    <span class="stat-label">Final Score:</span>
+                    <span id="final-score" class="stat-value">0</span>
+                </div>
+                <div class="symphony-stat">
+                    <span class="stat-label">Best Combo:</span>
+                    <span id="final-combo" class="stat-value">0</span>
+                </div>
+                <div class="symphony-stat">
+                    <span class="stat-label">Rain Level:</span>
+                    <span id="final-rain" class="stat-value">0%</span>
+                </div>
+                <div class="symphony-rating">
+                    <div id="performance-rating">Great Performance!</div>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="symphony-play-again" class="menu-btn primary">🎵 Play Again</button>
+                <button id="symphony-back-menu" class="menu-btn">🏠 Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/audioManager.js"></script>
+    <script src="js/blinkDetector.js"></script>
+    <script src="js/gazeDetector.js"></script>
+    <script src="js/gazeCursor.js"></script>
+    <script src="js/gazeDebugPanel.js"></script>
+    <script src="js/garden.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>oomlands Garden</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Main Menu Screen -->
+        <div id="main-menu" class="screen">
+            <div class="menu-panel">
+                <div class="logo-title">
+                    <img src="assets/ui/bloom_logo.png" alt="Blink & Bloom Logo" class="game-logo">
+                    <h1>Blink & Bloom</h1>
+                </div>
+                <p class="subtitle">Eye Health meets Garden Care</p>
+                
+                <div class="menu-description">
+                    <p>🔍 Blink naturally to water your plants</p>
+                    <p>👀 Take breaks to trigger rain showers</p>
+                    <p>🌿 Keep your garden thriving for 3 minutes!</p>
+                    <p><strong>🕐 Each session lasts 3 minutes</strong></p>
+                </div>
+
+                <div class="menu-buttons">
+                    <button id="start-game-btn" class="menu-btn primary">🎮 Start Playing</button>
+                    <button id="mini-game-btn" class="menu-btn">🎯 Mini-Game</button>
+                    <button id="settings-btn" class="menu-btn">⚙️ Settings</button>
+                </div>
+
+                <div class="health-info">
+                    <p><strong>💡 Did you know?</strong></p>
+                    <p>People blink 60% less when looking at screens!</p>
+                    <p>This game helps restore healthy blinking patterns.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <header id="game-header">
+                <div class="header-left">
+                    <img src="assets/ui/bloom_logo.png" alt="Logo" class="header-logo">
+                    <h1>Blink & Bloom</h1>
+                </div>
+                <div class="header-stats">
+                    <span id="blink-counter">Blinks: 0</span>
+                    <div id="day-clock" title="Time Remaining">
+                        <div class="sun-icon">☀️</div>
+                        <div class="clock-progress">
+                            <div id="clock-fill"></div>
+                        </div>
+                        <span id="session-timer">3:00</span>
+                    </div>
+                    <span id="plant-health">
+                        <div class="flower-progress" data-progress="100" title="Garden Health"></div>
+                        Garden: 100%
+                    </span>
+                </div>
+                <div class="header-right">
+                    <button id="menu-btn" class="small-btn">📋 Menu</button>
+                </div>
+            </header>
+
+            <div id="main-game-area">
+                <div id="garden-container">
+                    <div id="garden-grid">
+                        <!-- Plants will be generated here -->
+                    </div>
+                    
+                    <!-- Camera overlay in bottom-right corner of garden -->
+                    <div id="camera-container">
+                        <video id="camera-feed" autoplay muted></video>
+                        <canvas id="detection-canvas"></canvas>
+                        <canvas id="gaze-canvas"></canvas>
+                        <div id="blink-indicator" class="blink-flash"></div>
+                    </div>
+                    
+                    <!-- Blink Detection Debug Info - Always visible -->
+                    <div id="blink-debug-info" class="debug-panel">
+                        <h4>👁️ Blink Detection</h4>
+                        <div id="blink-debug-content">
+                            <div>Status: Initializing...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="game-sidebar">
+                    <div id="controls-panel">
+                        <h3>🎮 Controls</h3>
+                        <button id="start-btn">🌱 Start Garden</button>
+                        <button id="pause-btn" disabled>⏸️ Pause</button>
+                        <button id="look-away-btn">👀 Look Away Break</button>
+                        <!-- Gaze detection is now automatic when game starts -->
+                    </div>
+
+                    <div id="info-panel">
+                        <h3>📊 Session Info</h3>
+                        <div id="mini-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">🌱 Plants:</span>
+                                <span id="plant-count">0/9</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">💧 Blink Rate:</span>
+                                <span id="blink-rate">0/min</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">☔ Breaks:</span>
+                                <span id="break-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="daily-quests-panel">
+                        <h3>📋 Daily Quests</h3>
+                        <div id="quest-list">
+                            <div class="quest-item">
+                                <span class="quest-icon">🌱</span>
+                                <span class="quest-text">Grow 5 plants</span>
+                                <span class="quest-progress">0/5</span>
+                            </div>
+                            <div class="quest-item">
+                                <span class="quest-icon">🌸</span>
+                                <span class="quest-text">Bloom 3 flowers</span>
+                                <span class="quest-progress">0/3</span>
+                            </div>
+                            <div class="quest-item">
+                                <span class="quest-icon">💚</span>
+                                <span class="quest-text">Maintain 80% garden health</span>
+                                <span class="quest-progress">0/80</span>
+                            </div>
+                            <div class="quest-item">
+                                <span class="quest-icon">🧭</span>
+                                <span class="quest-text">Complete 3 wind exercises</span>
+                                <span class="quest-progress">0/3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="garden-status-panel">
+                        <h3>🌿 Garden Status</h3>
+                        <div id="garden-status-text">
+                            Your garden is getting started...
+                        </div>
+                    </div>
+
+                    <div id="tips-panel">
+                        <h3>💡 Tips</h3>
+                        <div id="current-tip">
+                            Blink naturally to water your plants! 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini-Game Screen -->
+        <div id="mini-game-screen" class="screen hidden">
+            <div id="mini-game-container">
+                <!-- Mini-game content will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Session Summary Modal -->
+        <div id="session-summary" class="modal hidden">
+            <div class="modal-content">
+                <h2>Session Complete! 🌸</h2>
+                <div id="summary-stats"></div>
+                <div class="modal-buttons">
+                    <button id="new-session-btn" class="menu-btn primary">New Session</button>
+                    <button id="back-to-menu-btn" class="menu-btn">Main Menu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debug/Settings panels (initially hidden) -->
+        <div id="debug-panels" class="hidden">
+            <button id="close-settings-btn" class="close-button">✖️ Close</button>
+            <button id="calibrate-gaze-btn">🎯 Calibrate</button>
+            <button id="gaze-debug-btn">🔧 Debug</button>
+            
+            <div id="camera-controls">
+                <h4>📷 Camera Settings</h4>
+                <div>
+                    <label for="camera-select">Select Camera:</label>
+                    <select id="camera-select">
+                        <option value="">Default Camera</option>
+                    </select>
+                    <button id="refresh-cameras-btn">🔄 Refresh</button>
+                    <button id="camera-diagnostics-btn">🔬 Diagnostics</button>
+                </div>
+                <div id="camera-status">Camera not initialized</div>
+                <div id="camera-diagnostics"></div>
+            </div>
+
+            <div id="gaze-info">
+                <h4>👁️ Gaze Detection</h4>
+                <div>Status: Disabled</div>
+                <div id="gaze-debug"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load MediaPipe for blink detection -->
+    <script src="js/audioManager.js"></script>
+    <script src="js/cameraUtils.js"></script>
+    <script src="js/blinkDetector.js"></script>
+    <script src="js/gazeDetector.js"></script>
+    <script src="js/gazeCursor.js"></script>
+    <script src="js/gazeDebugPanel.js"></script>
+    <script src="js/garden.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>

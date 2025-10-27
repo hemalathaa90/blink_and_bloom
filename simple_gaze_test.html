@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Gaze Test - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #222;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .video-container {
+            position: relative;
+            background: #000;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 20px 0;
+            width: 640px;
+            height: 480px;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        #canvas {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+            pointer-events: none;
+            border-radius: 4px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .panel {
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .value {
+            font-family: monospace;
+            color: #0f0;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #444;
+        }
+        
+        .error { background: #800; }
+        .success { background: #080; }
+        
+        .direction-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        .dir-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #555;
+            border-radius: 4px;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        
+        .dir-cell.active {
+            background: #0a0;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Simple Gaze Detection Test</h1>
+        
+        <div class="video-container">
+            <video id="video" autoplay muted></video>
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">Start Camera & Gaze Detection</button>
+            <button id="calibrateBtn" disabled>Calibrate (5 seconds)</button>
+            <button id="stopBtn" disabled>Stop</button>
+        </div>
+        
+        <div id="status" class="status">Click "Start Camera & Gaze Detection" to begin</div>
+        
+        <div class="info">
+            <div class="panel">
+                <h3>📊 Gaze Data</h3>
+                <div>X: <span id="gazeX" class="value">0.000</span></div>
+                <div>Y: <span id="gazeY" class="value">0.000</span></div>
+                <div>Region: <span id="gazeRegion" class="value">center</span></div>
+                <div>Calibrated: <span id="calibrated" class="value">No</span></div>
+                <div>Samples: <span id="samples" class="value">0</span></div>
+                
+                <h4>Direction Grid:</h4>
+                <div class="direction-grid">
+                    <div class="dir-cell" data-dir="up-left">↖</div>
+                    <div class="dir-cell" data-dir="up">↑</div>
+                    <div class="dir-cell" data-dir="up-right">↗</div>
+                    <div class="dir-cell" data-dir="left">←</div>
+                    <div class="dir-cell" data-dir="center">●</div>
+                    <div class="dir-cell" data-dir="right">→</div>
+                    <div class="dir-cell" data-dir="down-left">↙</div>
+                    <div class="dir-cell" data-dir="down">↓</div>
+                    <div class="dir-cell" data-dir="down-right">↘</div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h3>🔧 Debug Info</h3>
+                <div id="debugInfo" style="font-family: monospace; font-size: 12px; white-space: pre-line;">
+                    Waiting to start...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/gazeDetector.js"></script>
+    <script>
+        class SimpleGazeTest {
+            constructor() {
+                this.gazeDetector = new GazeDetector();
+                this.isRunning = false;
+                this.sampleCount = 0;
+                
+                this.setupEventListeners();
+                console.log('🔧 Simple Gaze Test initialized');
+            }
+            
+            setupEventListeners() {
+                document.getElementById('startBtn').addEventListener('click', () => this.start());
+                document.getElementById('calibrateBtn').addEventListener('click', () => this.calibrate());
+                document.getElementById('stopBtn').addEventListener('click', () => this.stop());
+                
+                // Setup gaze detector callbacks
+                this.gazeDetector.onGazeDetected = (gaze, details) => {
+                    this.updateDisplay(gaze, details);
+                };
+                
+                this.gazeDetector.onError = (error) => {
+                    this.showStatus(`Error: ${error}`, 'error');
+                };
+            }
+            
+            async start() {
+                try {
+                    this.showStatus('Initializing...', '');
+                    
+                    // Initialize gaze detector
+                    if (!this.gazeDetector.isInitialized) {
+                        const success = await this.gazeDetector.initialize();
+                        if (!success) {
+                            throw new Error('Failed to initialize gaze detector');
+                        }
+                    }
+                    
+                    // Get camera access
+                    const video = document.getElementById('video');
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 640, height: 480 }
+                    });
+                    
+                    video.srcObject = stream;
+                    await new Promise(resolve => video.onloadedmetadata = resolve);
+                    
+                    // Setup gaze detector
+                    const canvas = document.getElementById('canvas');
+                    this.gazeDetector.setupCamera(video, canvas);
+                    this.gazeDetector.debugMode = true;
+                    this.gazeDetector.startDetection();
+                    
+                    this.isRunning = true;
+                    this.updateButtons();
+                    this.showStatus('✅ Gaze detection active! Look around to see coordinates.', 'success');
+                    
+                } catch (error) {
+                    console.error('❌ Start failed:', error);
+                    this.showStatus(`Failed to start: ${error.message}`, 'error');
+                }
+            }
+            
+            calibrate() {
+                if (!this.isRunning) return;
+                
+                this.showStatus('🎯 Starting interactive calibration...', '');
+                this.gazeDetector.startCalibration();
+                
+                // Listen for calibration completion
+                const checkCalibration = () => {
+                    if (!this.gazeDetector.calibrationData.isCalibrating) {
+                        this.showStatus('✅ Calibration complete!', 'success');
+                        document.getElementById('calibrated').textContent = 'Yes';
+                    } else {
+                        setTimeout(checkCalibration, 500);
+                    }
+                };
+                setTimeout(checkCalibration, 1000);
+            }
+            
+            stop() {
+                this.gazeDetector.stopDetection();
+                
+                const video = document.getElementById('video');
+                if (video.srcObject) {
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    video.srcObject = null;
+                }
+                
+                this.isRunning = false;
+                this.updateButtons();
+                this.showStatus('⏹️ Stopped', '');
+            }
+            
+            updateDisplay(gaze, details) {
+                this.sampleCount++;
+                
+                // Update gaze values
+                document.getElementById('gazeX').textContent = gaze.x.toFixed(4);
+                document.getElementById('gazeY').textContent = gaze.y.toFixed(4);
+                document.getElementById('samples').textContent = this.sampleCount;
+                
+                // Update region
+                const region = this.gazeDetector.getGazeRegion();
+                document.getElementById('gazeRegion').textContent = region;
+                
+                // Update direction grid
+                document.querySelectorAll('.dir-cell').forEach(cell => {
+                    cell.classList.remove('active');
+                });
+                
+                const activeCell = document.querySelector(`[data-dir="${region}"]`);
+                if (activeCell) {
+                    activeCell.classList.add('active');
+                }
+                
+                // Update debug info
+                this.updateDebugInfo(gaze, details);
+            }
+            
+            updateDebugInfo(gaze, details) {
+                const info = this.gazeDetector.getDebugInfo();
+                const debugText = `
+Initialized: ${this.gazeDetector.isInitialized}
+Detecting: ${this.gazeDetector.isDetecting}
+Raw Gaze: (${gaze.x.toFixed(4)}, ${gaze.y.toFixed(4)})
+Center: (${info.calibrationData?.center?.x?.toFixed(4) || 'N/A'}, ${info.calibrationData?.center?.y?.toFixed(4) || 'N/A'})
+Thresholds: X=${info.gazeThresholds?.x?.toFixed(4) || 'N/A'}, Y=${info.gazeThresholds?.y?.toFixed(4) || 'N/A'}
+History: ${info.gazeHistory?.length || 0} points
+Confidence: ${(details.confidence * 100).toFixed(1)}%
+Region: ${this.gazeDetector.getGazeRegion()}
+                `.trim();
+                
+                document.getElementById('debugInfo').textContent = debugText;
+            }
+            
+            updateButtons() {
+                document.getElementById('startBtn').disabled = this.isRunning;
+                document.getElementById('calibrateBtn').disabled = !this.isRunning;
+                document.getElementById('stopBtn').disabled = !this.isRunning;
+            }
+            
+            showStatus(message, type = '') {
+                const status = document.getElementById('status');
+                status.textContent = message;
+                status.className = `status ${type}`;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SimpleGazeTest();
+        });
+    </script>
+</body>
+</html>
